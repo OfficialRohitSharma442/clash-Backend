@@ -1,8 +1,21 @@
 import express from "express";
 import "dotenv/config";
+import path from "path";
+import { fileURLToPath } from "url";
+import ejs from "ejs";
+import { sendMail } from "./config/mail.js";
+const __dir = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 7000;
-app.get("/", (req, res) => {
-    res.send("Hey its working🤓");
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+// Set view engine
+app.set("view engine", "ejs");
+app.set("views", path.resolve(__dir, "./views"));
+app.get("/", async (req, res) => {
+    const HTML = await ejs.renderFile(`${__dir}/views/emails/welcome.ejs`, { name: "Rohit" });
+    await sendMail("focom10841@mekuron.com", "Welcome to Clash", HTML);
+    res.render("emails/welcome", { name: "Rohit" });
 });
 app.listen(PORT, () => console.log(`server is Running on ${PORT}`));
